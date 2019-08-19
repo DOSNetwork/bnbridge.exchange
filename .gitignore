@@ -8,4 +8,3 @@ sdk/!.elasticbeanstalk/*.global.yml
 sdk/.privkey1.pem
 sdk/.cert1.pem
 sdk/.KEY
-/processing/config/index.js
