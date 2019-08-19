@@ -7,13 +7,13 @@ import {
 } from '@material-ui/core';
 import { colors } from '../../theme'
 
-import {
-  FEES_UPDATED
-} from '../../constants'
+// import {
+//   FEES_UPDATED
+// } from '../../constants'
 
-import Store from "../../stores";
-const emitter = Store.emitter
-const store = Store.store
+// import Store from "../../stores";
+// const emitter = Store.emitter
+// const store = Store.store
 
 const styles = theme => ({
   root: {
@@ -66,51 +66,51 @@ class Instructions extends Component {
     instruction: "https://medium.com/dos-network/instructions-on-how-to-swap-erc20-dos-to-bep2-dos-c032bdb7cc7f",
   };
 
-  componentWillMount() {
-    emitter.on(FEES_UPDATED, this.feesUpdated);
-  };
+  // componentWillMount() {
+  //   emitter.on(FEES_UPDATED, this.feesUpdated);
+  // };
 
-  componentWillUnmount() {
-    emitter.removeListener(FEES_UPDATED, this.feesUpdated);
-  };
+  // componentWillUnmount() {
+  //   emitter.removeListener(FEES_UPDATED, this.feesUpdated);
+  // };
 
-  feesUpdated = () => {
-    const fees = store.getStore('fees')
+  // feesUpdated = () => {
+  //   const fees = store.getStore('fees')
 
-    let feesDisplay = fees.map((fee) => {
-      let description = ""
+  //   let feesDisplay = fees.map((fee) => {
+  //     let description = ""
 
-      switch (fee.msg_type) {
-        case 'submit_proposal':
-          description = 'Submit Listing Proposal'
-          break;
-        case 'dexList':
-          description = 'Listing On DEX'
-          break;
-        case 'issueMsg':
-          description = 'Issue New Token'
-          break;
-        case 'send':
-          description = 'Transfer Tokens'
-          break;
-        case 'list_proposal_deposit':
-          description = 'Listing Proposal Deposit'
-          break;
-        default:
-          break;
-      }
+  //     switch (fee.msg_type) {
+  //       case 'submit_proposal':
+  //         description = 'Submit Listing Proposal'
+  //         break;
+  //       case 'dexList':
+  //         description = 'Listing On DEX'
+  //         break;
+  //       case 'issueMsg':
+  //         description = 'Issue New Token'
+  //         break;
+  //       case 'send':
+  //         description = 'Transfer Tokens'
+  //         break;
+  //       case 'list_proposal_deposit':
+  //         description = 'Listing Proposal Deposit'
+  //         break;
+  //       default:
+  //         break;
+  //     }
 
-      return {
-        description: description,
-        price: fee.fee/100000000
-      }
-    })
+  //     return {
+  //       description: description,
+  //       price: fee.fee/100000000
+  //     }
+  //   })
 
-    this.setState({
-      fees,
-      feesDisplay: feesDisplay,
-    })
-  };
+  //   this.setState({
+  //     fees,
+  //     feesDisplay: feesDisplay,
+  //   })
+  // };
 
   render() {
     const {

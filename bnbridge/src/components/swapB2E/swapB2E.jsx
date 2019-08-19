@@ -7,27 +7,28 @@ import {
   IconButton,
   SvgIcon
 } from '@material-ui/core'
-import config from '../../config'
+import config from '../../config/config'
 
 import Input from '../common/input';
 import Button from '../common/button';
 import PageLoader from "../common/pageLoader";
-import AssetSelection from "../assetSelection";
-import Config from '../../config';
+import AssetSelection from "../assetSelection/assetSelection";
+import Config from '../../config/config';
 
 import {
   ERROR,
-  SWAP_TOKEN,
-  TOKEN_SWAPPED,
-  FINALIZE_SWAP_TOKEN,
-  TOKEN_SWAP_FINALIZED,
+  TOKEN_SWAP_B2E,
+  TOKEN_SWAPPED_B2E,
+
+  TOKEN_SWAP_FINALIZE_B2E,
   TOKEN_SWAP_FINALIZED_B2E,
+
   TOKENS_UPDATED,
   GET_BNB_BALANCES,
   BNB_BALANCES_UPDATED
-} from '../../constants'
+} from '../../constants/constants'
 
-import Store from "../../stores";
+import Store from "../../stores/store";
 const dispatcher = Store.dispatcher
 const emitter = Store.emitter
 const store = Store.store
@@ -62,6 +63,13 @@ const styles = theme => ({
     textAlign: 'center',
     marginBottom: '16px'
   },
+  memoInstructionBold: {
+    color: 'red',
+    fontSize: '0.8rem',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: '16px'
+  },
   hash: {
     fontSize: '0.8rem',
     textAlign: 'center',
@@ -74,13 +82,6 @@ const styles = theme => ({
     marginTop: '24px',
     lineHeight: '42px',
     maxWidth: '250px'
-  },
-  createAccount: {
-    fontSize: '0.8rem',
-    textDecoration: 'underline',
-    textAlign: 'right',
-    marginBottom: '16px',
-    cursor: 'pointer'
   }
 });
 
@@ -96,7 +97,7 @@ function CopyIcon(props) {
 }
 
 
-class Swap extends Component {
+class SwapB2E extends Component {
   state = {
     loading: false,
     page: 0,
@@ -104,6 +105,9 @@ class Swap extends Component {
     tokenError: false,
     bnbAddress: '',
     bnbAddressError: false,
+    bnbReceiveAddress: '',
+    ethReceiveAddress: '',
+    ethReceiveAddressError: false,
     tokens: [],
     selectedToken: null,
     bnbBalances: null,
@@ -111,20 +115,21 @@ class Swap extends Component {
 
   componentWillMount() {
     emitter.on(TOKENS_UPDATED, this.tokensUpdated);
-    emitter.on(TOKEN_SWAPPED, this.tokenSwapped);
-    emitter.on(TOKEN_SWAP_FINALIZED, this.tokenSwapFinalized);
 
-    // emitter.on(TOKEN_SWAP_FINALIZED_B2E, this.tokenSwapFinalized);
+    emitter.on(TOKEN_SWAPPED_B2E, this.tokenSwappedB2E);
+    emitter.on(TOKEN_SWAP_FINALIZED_B2E, this.tokenSwapFinalizedB2E);
 
-    emitter.on(BNB_BALANCES_UPDATED, this.bnbBalancesUpdated);
+    // emitter.on(BNB_BALANCES_UPDATED, this.bnbBalancesUpdated);
     emitter.on(ERROR, this.error);
   };
 
   componentWillUnmount() {
     emitter.removeListener(TOKENS_UPDATED, this.tokensUpdated);
-    emitter.removeListener(TOKEN_SWAPPED, this.tokenSwapped);
-    emitter.removeListener(TOKEN_SWAP_FINALIZED, this.tokenSwapFinalized);
-    emitter.removeListener(BNB_BALANCES_UPDATED, this.bnbBalancesUpdated);
+
+    emitter.removeListener(TOKEN_SWAPPED_B2E, this.tokenSwappedB2E);
+    emitter.removeListener(TOKEN_SWAP_FINALIZED_B2E, this.tokenSwapFinalizedB2E);
+
+    // emitter.removeListener(BNB_BALANCES_UPDATED, this.bnbBalancesUpdated);
     emitter.removeListener(ERROR, this.error);
   };
 
@@ -136,25 +141,58 @@ class Swap extends Component {
     })
   };
 
-  bnbBalancesUpdated = (data) => {
-    this.setState({ bnbBalances: data, loading: false })
-  };
+  // bnbBalancesUpdated = (data) => {
+  //   this.setState({ bnbBalances: data, loading: false })
+  // };
 
   error = (err) => {
     this.props.showError(err)
     this.setState({ loading: false })
   };
 
-  tokenSwapped = (data) => {
-    this.setState({
-      page: 1,
-      clientUuid: data.uuid,
-      ethDepositAddress: data.eth_address,
-      loading: false
-   })
+  tokenSwapB2E = (date) => {
+    const {
+      ethReceiveAddress,
+      bnbAddress,
+      selectedToken
+    } = this.state
+
+    const content = {
+      eth_address: ethReceiveAddress,
+      bnb_address: bnbAddress,
+      token_uuid: selectedToken.uuid
+    }
+
+    dispatcher.dispatch({type: TOKEN_SWAP_B2E, content })
+    this.setState({ loading: true })
   };
 
-  tokenSwapFinalized = (transactions) => {
+  tokenSwappedB2E = (data) => {
+    this.setState({
+      page: 1,
+      loading: false,
+      bnbReceiveAddress: data.address
+   })
+   console.log(this.state)
+  };
+
+  callFinalizeSwapTokenB2E = () => {
+    const {
+      ethReceiveAddress,
+      bnbAddress,
+      selectedToken
+    } = this.state
+
+    const content = {
+      eth_address: ethReceiveAddress,
+      bnb_address: bnbAddress,
+      token_uuid: selectedToken.uuid
+    }
+    dispatcher.dispatch({type: TOKEN_SWAP_FINALIZE_B2E, content})
+    this.setState({ loading: true })
+  };
+
+  tokenSwapFinalizedB2E = (transactions) => {
     this.setState({
       page: 2,
       loading: false,
@@ -162,58 +200,18 @@ class Swap extends Component {
     })
   };
 
-  callSwapToken = () => {
-
-    const {
-      token,
-      bnbAddress,
-    } = this.state
-
-    const content = {
-      token_uuid: token,
-      bnb_address: bnbAddress,
-    }
-    dispatcher.dispatch({type: SWAP_TOKEN, content })
-
-    this.setState({ loading: true })
-  };
-
-  callFinalizeSwapToken = () => {
-    const {
-      clientUuid,
-      selectedToken
-    } = this.state
-
-    const content = {
-      uuid: clientUuid,
-      token_uuid: selectedToken.uuid
-    }
-    dispatcher.dispatch({type: FINALIZE_SWAP_TOKEN, content })
-
-    this.setState({ loading: true })
-  };
-
-  callFinalizeSwapTokenB2E = () => {
-    const content = {
-      eth_address: "0x16121D4a9255601d8C7fb643c1649d0B17732787",
-      bnb_address: "tbnb1gqj9qgqmsftvcjw9fs983r7zq9x26s7mgfluh3",
-      token_uuid: "d63380b5-4873-46a4-b74e-3afa72d41cc5"
-    }
-    dispatcher.dispatch({type: TOKEN_SWAP_FINALIZED_B2E, content})
-
-    this.setState({ loading: true })
-  }
-
-  validateSwapToken = () => {
+  validateSwapTokenB2E = () => {
 
     this.setState({
       tokenError: false,
       bnbAddressError: false,
+      ethReceiveAddressError: false
     })
 
     const {
       token,
       bnbAddress,
+      ethReceiveAddress
     } = this.state
 
     let error = false
@@ -226,6 +224,10 @@ class Swap extends Component {
       this.setState({ bnbAddressError: true })
       error = true
     }
+    if(!ethReceiveAddress || ethReceiveAddress === '') {
+      this.setState({ ethReceiveAddressError: true })
+      error = true
+    }
 
     return !error
   };
@@ -233,12 +235,12 @@ class Swap extends Component {
   onNext = (event) => {
     switch (this.state.page) {
       case 0:
-        if(this.validateSwapToken()) {
-          this.callSwapToken()
+        if(this.validateSwapTokenB2E()) {
+          this.tokenSwapB2E()
         }
         break;
       case 1:
-        this.callFinalizeSwapToken()
+        this.callFinalizeSwapTokenB2E()
         break;
       case 2:
         this.resetPage()
@@ -255,6 +257,9 @@ class Swap extends Component {
       tokenError: false,
       bnbAddress: '',
       bnbAddressError: false,
+      bnbReceiveAddress: '',
+      ethReceiveAddress: '',
+      ethReceiveAddressError: false,
       selectedToken: null,
       bnbBalances: null,
     })
@@ -265,7 +270,7 @@ class Swap extends Component {
   };
 
   onHashClick = (hash) => {
-    window.open(config.etherscanURL+hash, "_blank")
+    window.open(config.bnbexplorerURL+hash, "_blank")
   };
 
   onTokenSelected = (value) => {
@@ -296,25 +301,46 @@ class Swap extends Component {
     val[event.target.id] = event.target.value
     this.setState(val)
 
-    if(event.target.id === 'bnbAddress') {
+    // if(event.target.id === 'bnbAddress') {
 
-      const {
-        selectedToken
-      } = this.state
+    //   const {
+    //     selectedToken
+    //   } = this.state
 
-      if(selectedToken  && event.target.value && event.target.value !== "" && event.target.value.length === Config.bnbAddressLength) {
-        const content = {
-          bnb_address: event.target.value,
-          token_uuid: selectedToken.uuid
-        }
-        dispatcher.dispatch({type: GET_BNB_BALANCES, content })
-        this.setState({ loading: true, bnbBalances: null })
-      }
+    //   if(selectedToken  && event.target.value && event.target.value !== "" && event.target.value.length === Config.bnbAddressLength) {
+    //     const content = {
+    //       bnb_address: event.target.value,
+    //       token_uuid: selectedToken.uuid
+    //     }
+    //     dispatcher.dispatch({type: GET_BNB_BALANCES, content })
+    //     this.setState({ loading: true, bnbBalances: null })
+    //   }
+    // }
+  };
+  
+  onCopy = () => {
+    var elm = document.getElementById("depositAddress");
+    let range;
+    // for Internet Explorer
+
+    if (document.body.createTextRange) {
+      range = document.body.createTextRange();
+      range.moveToElementText(elm);
+      range.select();
+      document.execCommand("Copy");
+    } else if (window.getSelection) {
+      // other browsers
+      var selection = window.getSelection();
+      range = document.createRange();
+      range.selectNodeContents(elm);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      document.execCommand("Copy");
     }
   };
 
-  onCopy = () => {
-    var elm = document.getElementById("depositAddress");
+  onCopyMemo = () => {
+    var elm = document.getElementById("memo");
     let range;
     // for Internet Explorer
 
@@ -339,14 +365,15 @@ class Swap extends Component {
     const {
       bnbAddress,
       bnbAddressError,
+      ethReceiveAddress,
+      ethReceiveAddressError,
       loading,
       bnbBalances,
       selectedToken
     } = this.state
 
     const {
-      onIssue,
-      classes
+      onIssue
     } = this.props
 
     return (
@@ -356,14 +383,26 @@ class Swap extends Component {
           <Input
             id='bnbAddress'
             fullWidth={ true }
-            label="BNB Address"
+            label="BNB Address that transfer from"
             placeholder="eg: bnb1mmxvnhkyqrvd2dpskvsgl8lmft4tnrcs97apr3"
             value={ bnbAddress }
             error={ bnbAddressError }
             onChange={ this.onChange }
             disabled={ loading }
           />
-          {
+
+          <Input
+            id='ethReceiveAddress'
+            fullWidth={ true }
+            label="Ethereum Address that transfer to"
+            placeholder="eg: 0x16121D4a9255601d8C7fb643c1649d0B17732787"
+            value={ ethReceiveAddress }
+            error={ ethReceiveAddressError }
+            onChange={ this.onChange }
+            disabled={ loading }
+          />
+
+          {/* {
             bnbBalances &&
             <React.Fragment>
               <Typography>
@@ -373,13 +412,8 @@ class Swap extends Component {
                 Pending {selectedToken.name} Balance: { bnbBalances.pendingBalance } { selectedToken.symbol }
               </Typography>
             </React.Fragment>
-          }
-          {
-            !bnbBalances &&
-            <a className={ classes.createAccount } target="_blank" rel="noopener noreferrer" href="https://www.binance.org/en/create">
-              Don't have an account? Create one
-            </a>
-          }
+          } */}
+
         </Grid>
       </React.Fragment>
     )
@@ -388,7 +422,9 @@ class Swap extends Component {
   renderPage1 = () => {
     const {
       selectedToken,
-      ethDepositAddress,
+      bnbAddress,
+      bnbReceiveAddress,
+      ethReceiveAddress
     } = this.state
 
     const {
@@ -402,13 +438,14 @@ class Swap extends Component {
             Here's what you need to do next:
           </Typography>
           <Typography className={ classes.instructionBold }>
-            Transfer your {selectedToken.symbol}-ERC20
+            Transfer your {selectedToken.symbol}-BEP2
           </Typography>
           <Typography className={ classes.instructions }>
             to
           </Typography>
+
           <Typography className={ classes.instructionBold }>
-            <span id='depositAddress'>{ethDepositAddress}</span>
+            <span id='depositAddress'>{bnbReceiveAddress}</span>
             <IconButton
               style={{
                 verticalAlign: "top",
@@ -419,6 +456,24 @@ class Swap extends Component {
               <CopyIcon/>
             </IconButton>
           </Typography>
+
+          <Typography className={ classes.instructions }>
+            with memo 
+          </Typography>
+
+          <Typography className={ classes.memoInstructionBold }>
+            <span id='memo'>{ethReceiveAddress}</span>
+            <IconButton
+              style={{
+                verticalAlign: "top",
+                marginRight: "-5px"
+              }}
+              onClick={this.onCopyMemo}
+            >
+              <CopyIcon/>
+            </IconButton>
+          </Typography>
+
           <Typography className={ classes.instructionUnderlined }>
             After you've completed the transfer, click the "NEXT" button so we can verify your transaction.
           </Typography>
@@ -453,7 +508,8 @@ class Swap extends Component {
     const {
       transactions,
       selectedToken,
-      bnbAddress
+      bnbAddress,
+      ethReceiveAddress
     } = this.state
 
     const {
@@ -466,7 +522,7 @@ class Swap extends Component {
     return (
       <React.Fragment>
         <Typography className={ classes.instructions }>
-          You will receive another <b>{totalAmount} {selectedToken.symbol}-BEP2</b> in total in your address <b>{bnbAddress}</b>
+          You will receive another <b>{totalAmount} {selectedToken.symbol}-ERC20</b> in total in your address <b>{ethReceiveAddress}</b>
         </Typography>
       </React.Fragment>
     )
@@ -475,6 +531,7 @@ class Swap extends Component {
   renderTransactions = () => {
     const {
       transactions,
+      bnbAddress,
       selectedToken
     } = this.state
 
@@ -486,7 +543,7 @@ class Swap extends Component {
       return (
         <React.Fragment key={transaction.deposit_transaction_hash} >
           <Typography className={ classes.hash } onClick={ (event) => { this.onHashClick(transaction.deposit_transaction_hash); } }>
-            <b>{(transaction.amount-5).toFixed(2)} (5 DOS as swap fee) {selectedToken.symbol}-ERC</b> from <b>{transaction.eth_address}</b>
+            <b>{(transaction.amount-5).toFixed(2)} (5 DOS as swap fee) {selectedToken.symbol}-BEP2</b> from <b>{bnbAddress}</b>
           </Typography>
         </React.Fragment>)
     })
@@ -517,14 +574,21 @@ class Swap extends Component {
             disabled={ loading }
             onClick={ this.onNext }
           />
+
+          <Button
+            fullWidth={true}
+            label={ "Test"}
+            onClick={this.callFinalizeSwapTokenB2E}
+          />
+
         </Grid>
       </Grid>
     )
   };
 }
 
-Swap.propTypes = {
+SwapB2E.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(Swap);
+export default withStyles(styles)(SwapB2E);

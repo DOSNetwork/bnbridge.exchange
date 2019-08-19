@@ -10,10 +10,11 @@ import {
 // import List from "../list";
 // import CreateAccount from '../createAccount';
 import Swap from "../swap";
+import SwapB2E from "../swapB2E";
 import ErrorSnackbar from '../errorSnackbar';
 
-import Store from "../../stores";
-const store = Store.store
+// import Store from "../../stores";
+// const store = Store.store
 
 const styles = theme => ({
   root: {
@@ -44,20 +45,20 @@ class Controller extends Component {
   componentWillUnmount() {
   };
 
-  feesUpdated = () => {
-    const fees = store.getStore('fees')
+  // feesUpdated = () => {
+  //   const fees = store.getStore('fees')
 
-    let issueFee = fees.filter((fee) => {
-      return fee.msg_type === 'issueMsg'
-    }).map((fee) => {
-      return fee.fee/100000000
-    })[0]
+  //   let issueFee = fees.filter((fee) => {
+  //     return fee.msg_type === 'issueMsg'
+  //   }).map((fee) => {
+  //     return fee.fee/100000000
+  //   })[0]
 
-    this.setState({
-      fees,
-      issueFee: issueFee
-    })
-  };
+  //   this.setState({
+  //     fees,
+  //     issueFee: issueFee
+  //   })
+  // };
 
   handleChange = (event, value) => {
     this.setState({ tabValue: value });
@@ -75,9 +76,9 @@ class Controller extends Component {
     this.setState({ createOpen: true })
   };
 
-  onCreateAccountBack = (event) => {
-    this.setState({ createOpen: false })
-  };
+  // onCreateAccountBack = (event) => {
+  //   this.setState({ createOpen: false })
+  // };
 
   render() {
     const { classes } = this.props;
@@ -139,13 +140,12 @@ class Controller extends Component {
     return (
       <React.Fragment>
         <Tabs value={tabValue} onChange={this.handleChange} className={ classes.tabs } variant="fullWidth" indicatorColor="primary" textColor="inherit">
-          { <Tab label="Swap" /> }
-          {/* <Tab label="List" />
-          <Tab label="Issue" /> */}
+          { <Tab label="ERC20 to BEP2" /> }
+          { <Tab label="BEP2 to ERC20" /> }
         </Tabs>
         {tabValue === 0 && <Swap onIssue={ this.onIssue } showError={ this.showError } onCreateAccount={ this.onCreateAccount } />}
-        {/* tabValue === 1 && <List onIssue={ this.onIssue } showError={ this.showError } />}
-        {tabValue === 2 && <Issue onBack={ this.onIssueBack }  issueFee={ issueFee } showError={ this.showError } /> */}
+        {tabValue === 1 && <SwapB2E onIssue={ this.onIssue } showError={ this.showError } />}
+        {/* {tabValue === 2 && <Issue onBack={ this.onIssueBack }  issueFee={ issueFee } showError={ this.showError } /> */} 
       </React.Fragment>
     )
   };

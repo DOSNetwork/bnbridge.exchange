@@ -62,25 +62,6 @@ create table swaps (
 );
 
 
-drop table if exists list_proposals;
-create table list_proposals (
-  uuid char(36) primary key,
-  token_uuid char(36),
-  unique_symbol varchar(32),
-  title varchar(128),
-  description varchar(128),
-  initial_price varchar(32),
-  expiry_time bigint,
-  voting_period bigint,
-  submitted boolean,
-  transaction_hash varchar(64),
-  proposal_id bigint,
-  processed boolean,
-  voting_status varchar(32),
-  created timestamp
-);
-
-
 drop table if exists client_accounts;
 create table client_accounts (
   uuid char(36) primary key,
