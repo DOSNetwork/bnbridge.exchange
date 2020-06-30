@@ -17,7 +17,7 @@ const config = {
   network: 'mainnet',
 
   //Ethereum
-  provider: 'https://mainnet.infura.io/v3/1b8fe172d663460bb5eb6f79552efebd',
+  provider: 'wss://mainnet.infura.io/ws/v3/<Replace with your Infura api key>',
 
 
   erc20ABI: [

@@ -661,9 +661,9 @@ const models = {
             const ethTransactions = data[0]
             const swaps = data[1]
 
-            // console.log(ethTransactions)
+            console.log(ethTransactions)
 
-            // console.log(swaps)
+            console.log(swaps)
 
             if(!ethTransactions || ethTransactions.length === 0) {
               res.status(400)
