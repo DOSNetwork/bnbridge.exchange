@@ -61,7 +61,7 @@ const styles = theme => ({
 class Instructions extends Component {
   state = {
     fees: [],
-    dos_erc20: "https://etherscan.io/address/0x70861e862e1ac0c96f853c8231826e469ead37b1",
+    dos_erc20: "https://etherscan.io/address/0x0A913beaD80F321E7Ac35285Ee10d9d922659cB7",
     dos_bep2: "https://explorer.binance.org/asset/DOS-120",
     instruction: "https://medium.com/dos-network/instructions-on-how-to-swap-erc20-dos-to-bep2-dos-c032bdb7cc7f",
   };
