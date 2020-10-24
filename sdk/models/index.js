@@ -389,6 +389,9 @@ const models = {
             const ethTransactions = data[0]
             const swaps = data[1]
 
+            console.log(ethTransactions)
+            console.log(swaps)
+
             if(!ethTransactions || ethTransactions.length === 0) {
               res.status(400)
               res.body = { 'status': 400, 'success': false, 'result': 'Unable to find a deposit' }

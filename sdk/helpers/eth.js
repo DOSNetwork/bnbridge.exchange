@@ -1,7 +1,7 @@
 const Web3 = require('web3');
 const config = require('../config')
 
-var web3 = new Web3(new Web3.providers.HttpProvider(config.provider));
+var web3 = new Web3(new Web3.providers.WebsocketProvider(config.provider));
 
 const eth = {
   createAccount(callback) {
@@ -18,7 +18,7 @@ const eth = {
     let myContract = new web3.eth.Contract(config.erc20ABI, contractAddress)
 
     myContract.getPastEvents('Transfer', {
-      fromBlock: 0,
+      fromBlock: 7349343,
       toBlock: 'latest',
       filter: { to: depositAddress }
     })
