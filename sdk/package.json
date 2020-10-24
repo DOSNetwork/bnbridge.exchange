@@ -12,7 +12,7 @@
     "@binance-chain/javascript-sdk": "^2.14.0",
     "assert": "^2.0.0",
     "async": "^2.6.2",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "bip39": "^3.0.2",
     "compression": "^1.7.4",
     "crypto": "^1.0.1",
