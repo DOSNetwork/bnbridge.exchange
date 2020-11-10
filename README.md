@@ -31,11 +31,5 @@ API used to interact with the CLI utility, Binance javascript SDK and Web3.js to
         - Ethereum connection details for mainnet/testnet.
     Config https keys and certifications for production.
 
-    cd ./sdk
-    node ./api.bnbridge.exchange.js
-    or
-    pm2 start api.bnbridge.exchange.js
-
-    cd ../bnbridge
-    vi ./src/config.js
-    Modify config urls that the bnbridge.excahnge API is running at. (http://localhost:8000 by default)
+    cd ./sdk;
+    `node ./api.bnbridge.exchange.js` or `pm2 start api.bnbridge.exchange.js`
