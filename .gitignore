@@ -1,4 +1,5 @@
 sdk/node_modules/
+sdk/package-lock.json
 
 sdk/.elasticbeanstalk/*
 

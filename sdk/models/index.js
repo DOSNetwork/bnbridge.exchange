@@ -787,7 +787,7 @@ const models = {
     if (amount_n < minimum_amount_n) {
       return callback("Transferred amount less than minimum fee, swap skipped");
     }
-    bnb.transfer(key.mnemonic, swap.bnb_address, (amount_n - fee_n).toFixed(2), tokenInfo.unique_symbol, 'DOS Swap', seq, (err, swapResult) => {
+    bnb.transfer(key.mnemonic, swap.bnb_address, (amount_n - fee_n).toFixed(2), tokenInfo.unique_symbol, 'ERC20-to-BEP2 DOS Swap', seq, (err, swapResult) => {
       if(err) {
         console.log(err)
 
