@@ -17,7 +17,7 @@ function App() {
       <CssBaseline />
       
       <Grid
-        style={{ 'padding-top': '8.5%'}}
+        style={{ 'paddingTop': '8.5%'}}
         container
         justify="center"
         alignItems="center"
