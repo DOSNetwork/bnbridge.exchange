@@ -22,7 +22,7 @@ const eth = {
         return {
           from: event.returnValues.from,
           to: event.returnValues.to,
-          amount: parseFloat(web3.utils.fromWei(event.returnValues.value._hex, 'ether')),
+          amount: parseFloat(web3.utils.fromWei(event.returnValues.value, 'ether')),
           transactionHash: event.transactionHash
         }
       })
