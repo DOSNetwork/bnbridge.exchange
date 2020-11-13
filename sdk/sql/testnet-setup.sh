@@ -74,7 +74,7 @@ sudo -u $DBUSER psql "postgresql://$DBUSER:$DBPASSWORD@localhost/$DBNAME" -c "
     'd63380b5-4873-46a4-b74e-3afa72d41cc5',
     'DOS NETWORK BEP2 Testnet',
     'DOS',
-    'DOS1-55F',
+    'TDOS120-0BD',
     1000000000,
     '0x214e79c85744CD2eBBc64dDc0047131496871bEe',
     true,
