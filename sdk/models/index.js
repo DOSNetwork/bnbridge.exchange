@@ -1,6 +1,7 @@
 const db = require('../helpers/db.js').db;
 const config = require('../config');
 const bnb = require('../helpers/bnb.js');
+const emailer = require('../helpers/emailer.js');
 const eth = require('../helpers/eth.js');
 const async = require('async');
 const generator = require('generate-password');
@@ -795,6 +796,18 @@ const models = {
           if(err) {
             console.log(err)
           }
+
+          let text = "Bridge swap encountered an error processing a swap."
+          text += '\n\n*********************************************************'
+          text += '\nToken: '+tokenInfo.name + ' ('+ tokenInfo.symbol +')'
+          text += '\nDeposit Hash: '+swap.deposit_transaction_hash
+          text += '\nFrom: '+swap.eth_address
+          text += '\nTo: '+swap.bnb_address
+          text += '\nAmount: '+swap.amount + ' ' + tokenInfo.symbol
+          text += '\n\nError Received: '+err
+          text += '\n*********************************************************'
+
+          emailer.sendMail('Bridge swap error', text)
 
           return callback(err)
         })

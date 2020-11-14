@@ -3,6 +3,8 @@
    "database":"<Replace with your DB name>",
    "user":"<Replace with your DB user>",
    "password":"<Replace with your DB password>",
+   "gmailUser": "<Replace with your gmail>",
+   "gmailPassword": "<Replace with your gmail password>",
    "api":"https://dex.binance.org/",
    "filePath":"../cli/node-binary/",
    "fileName":"bnbcli",
