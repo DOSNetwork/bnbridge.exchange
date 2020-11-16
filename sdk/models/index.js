@@ -570,7 +570,7 @@ const models = {
   },
 
   getClientAccountForBnbAddress(bnbAddress, callback) {
-    db.oneOrNone('select ca.uuid, ca.bnb_address, cea.address as eth_address from client_accounts ca left join client_eth_accounts cea on cea.uuid = ca.client_eth_account_uuid where ca.bnb_address = $1;', [bnbAddress])
+    db.oneOrNone('select ca.uuid, ca.bnb_address, cea.address as eth_address from client_accounts_bnb ca left join client_eth_accounts cea on cea.uuid = ca.client_eth_account_uuid where ca.bnb_address = $1;', [bnbAddress])
     .then((response) => {
       callback(null, response)
     })
@@ -584,7 +584,7 @@ const models = {
 
     db.oneOrNone('insert into client_eth_accounts(uuid, private_key, address, encr_key, created) values (md5(random()::text || clock_timestamp()::text)::uuid, $1, $2, $3, now()) returning uuid, address;', [aes256private, ethAccount.address, dbPassword])
     .then((returnedEthAccount) => {
-      db.oneOrNone('insert into client_accounts(uuid, bnb_address, client_eth_account_uuid, created) values (md5(random()::text || clock_timestamp()::text)::uuid, $1, $2, now()) returning uuid, bnb_address;', [bnbAddress, returnedEthAccount.uuid])
+      db.oneOrNone('insert into client_accounts_bnb(uuid, bnb_address, client_eth_account_uuid, created) values (md5(random()::text || clock_timestamp()::text)::uuid, $1, $2, now()) returning uuid, bnb_address;', [bnbAddress, returnedEthAccount.uuid])
       .then((clientAccount) => {
         const returnObj = {
           uuid: clientAccount.uuid,
@@ -620,7 +620,7 @@ const models = {
         token_uuid
       } = data
 
-      models.getClientAccountForUuid(uuid, (err, clientAccount) => {
+      models.getClientAccountForUuidE2B(uuid, (err, clientAccount) => {
         if(err) {
           console.log(err)
           res.status(500)
@@ -861,8 +861,8 @@ const models = {
     return true
   },
 
-  getClientAccountForUuid(uuid, callback) {
-    db.oneOrNone('select ca.uuid, ca.bnb_address, cea.address as eth_address from client_accounts ca left join client_eth_accounts cea on cea.uuid = ca.client_eth_account_uuid where ca.uuid = $1;', [uuid])
+  getClientAccountForUuidE2B(uuid, callback) {
+    db.oneOrNone('select ca.uuid, ca.bnb_address, cea.address as eth_address from client_accounts_bnb ca left join client_eth_accounts cea on cea.uuid = ca.client_eth_account_uuid where ca.uuid = $1;', [uuid])
     .then((response) => {
       callback(null, response)
     })

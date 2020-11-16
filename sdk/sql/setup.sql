@@ -1,7 +1,5 @@
-
-
-drop table if exists eth_accounts;
-create table eth_accounts (
+DROP TABLE IF EXISTS eth_accounts;
+CREATE TABLE eth_accounts (
   uuid char(36) primary key,
   private_key varchar(128),
   address varchar(64),
@@ -10,8 +8,8 @@ create table eth_accounts (
 );
 
 
-drop table if exists bnb_accounts;
-create table bnb_accounts (
+DROP TABLE IF EXISTS bnb_accounts;
+CREATE TABLE bnb_accounts (
   uuid char(36) primary key,
   public_key varchar(128),
   -- Inappropriate name, raw mnemonic of a bnb account encrypted by key `(KEY:dbPassword)`
@@ -26,8 +24,8 @@ create table bnb_accounts (
 );
 
 
-drop table if exists tokens;
-create table tokens (
+DROP TABLE IF EXISTS tokens;
+CREATE TABLE tokens (
   uuid char(36) primary key,
   name varchar(64),
   symbol varchar(10),
@@ -47,8 +45,8 @@ create table tokens (
 );
 
 
-drop table if exists swaps;
-create table swaps (
+DROP TABLE IF EXISTS swaps;
+CREATE TABLE swaps (
   uuid char(36) primary key,
   token_uuid char(36),
   client_account_uuid char(36),
@@ -58,46 +56,47 @@ create table swaps (
   deposit_transaction_hash varchar(128),
   transfer_transaction_hash varchar(128),
   processed boolean,
-  created timestamp
+  created timestamp,
+  direction char(3)
 );
 
 
-drop table if exists list_proposals;
-create table list_proposals (
-  uuid char(36) primary key,
-  token_uuid char(36),
-  unique_symbol varchar(32),
-  title varchar(128),
-  description varchar(128),
-  initial_price varchar(32),
-  expiry_time bigint,
-  voting_period bigint,
-  submitted boolean,
-  transaction_hash varchar(64),
-  proposal_id bigint,
-  processed boolean,
-  voting_status varchar(32),
-  created timestamp
-);
-
-
-drop table if exists client_accounts;
-create table client_accounts (
+DROP TABLE IF EXISTS client_accounts_bnb;
+CREATE TABLE client_accounts_bnb (
   uuid char(36) primary key,
   bnb_address varchar(64),
   client_eth_account_uuid char(36),
-  encr_key varchar(512),
+  created timestamp
+);
+
+DROP TABLE IF EXISTS client_accounts_eth;
+CREATE TABLE client_accounts_eth (
+  uuid char(36) primary key,
+  eth_address varchar(64),
+  client_bnb_account_uuid char(36),
   created timestamp
 );
 
 
-drop table if exists client_eth_accounts;
-create table client_eth_accounts (
+DROP TABLE IF EXISTS client_eth_accounts;
+CREATE TABLE client_eth_accounts (
   uuid char(36) primary key,
   -- Inappropriate name, encrypted eth private key using `(KEY:dbPassword)` as encryption key
   private_key varchar(256),
   address varchar(64),
   -- dbPassword, a newly generated bip39 mnemonic for each created eth account
+  encr_key varchar(128),
+  created timestamp
+);
+
+DROP TABLE IF EXISTS client_bnb_accounts;
+CREATE TABLE client_bnb_accounts (
+  uuid char(36) primary key,
+  public_key varchar(128),
+  seed_phrase varchar(512),
+  address varchar(64),
+  key_name varchar(64),
+  password varchar(128),
   encr_key varchar(128),
   created timestamp
 );
