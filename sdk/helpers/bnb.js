@@ -160,16 +160,16 @@ const bnb = {
         console.log("seq: " + sequence)
         return bnbClient.transfer(addressFrom, publicTo, amount, asset, message, sequence)
       })
-      .then((result) => {
-        if (result.status === 200) {
-          callback(null, result)
-        } else {
-          callback(result)
-        }
-      })
-      .catch((error) => {
-        callback(error)
-      });
+        .then((result) => {
+          if (result.status === 200) {
+            callback(null, result)
+          } else {
+            callback(result)
+          }
+        })
+        .catch((error) => {
+          callback(error)
+        });
     })
   },
 
@@ -375,7 +375,20 @@ const bnb = {
   generateKeyStore(privateKey, password) {
     const result = BnbApiClient.crypto.generateKeyStore(privateKey, password);
     return result
-  }
+  },
+
+  getTransactionsForAddress(address, symbol, callback) {
+    const url = `${config.api}api/v1/transactions?address=${address}&txType=TRANSFER&txAsset=${symbol}&side=RECEIVE`;
+
+    httpClient
+      .get(url)
+      .then((res) => {
+        callback(null, res)
+      })
+      .catch((error) => {
+        callback(error)
+      });
+  },
 
 }
 
