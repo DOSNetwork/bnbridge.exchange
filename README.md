@@ -1,17 +1,15 @@
 # BNBridge
 
 ### Features:
-- [x] Issue a new token on the Binance network.
-- [x] Swap a token from ERC20 to BEP2.
-- [x] List newly issued token on Binance DEX.
-- [x] Create a new BNB account.
+- [x] Create a new BEP2 BNB account.
+- [x] Swap DOS token from ERC20 to BEP2.
+- [x] Swap DOS token from BEP2 to ERC20.
+- [x] BEP2 <-> BEP20 token transfer guides: [1](https://medium.com/spartanprotocol/swap-bep2-token-for-its-bep20-equivalent-a5054eec314d), [2](https://community.trustwallet.com/t/how-to-swap-twt-bep2-to-twt-bep20/72718).
+
 
 ### Repository
 ## ./bnbridge
 Front end website allowing for BNB to ERC bridge support.
-
-## ./cli
-Binance CLI utility.
 
 ## ./sdk
 API used to interact with the CLI utility, Binance javascript SDK and Web3.js to enable BNB to ERC bridge utility.
