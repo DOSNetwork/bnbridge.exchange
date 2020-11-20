@@ -4,7 +4,10 @@
 - [x] Create a new BEP2 BNB account.
 - [x] Swap DOS token from ERC20 to BEP2.
 - [x] Swap DOS token from BEP2 to ERC20.
-- [x] BEP2 <-> BEP20 token transfer guides: [1](https://medium.com/spartanprotocol/swap-bep2-token-for-its-bep20-equivalent-a5054eec314d), [2](https://community.trustwallet.com/t/how-to-swap-twt-bep2-to-twt-bep20/72718).
+- [x] BEP2 <-> BEP20 token transfer guidance: [guide 1](https://medium.com/spartanprotocol/swap-bep2-token-for-its-bep20-equivalent-a5054eec314d), [guide 2](https://community.trustwallet.com/t/how-to-swap-twt-bep2-to-twt-bep20/72718).
+- [x] See [ERC20 token address](https://etherscan.io/token/0x0A913beaD80F321E7Ac35285Ee10d9d922659cB7), [BEP20 token address](https://bscscan.com/token/0xdc0f0a5719c39764b011edd02811bd228296887c), [BEP2 token address](https://explorer.binance.org/asset/DOS-120).
+
+
 
 
 ### Repository
