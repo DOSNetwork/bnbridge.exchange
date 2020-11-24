@@ -53,7 +53,7 @@ class AssetSelection extends Component {
       }
     })
 
-    let selectedToken = "";
+    let selectedToken = '';
     if (tokens.length > 0) {
       selectedToken = tokens[0].uuid;
       this.props.onTokenSelected(selectedToken);
@@ -106,7 +106,7 @@ class AssetSelection extends Component {
           <Select
             id="token"
             fullWidth={ true }
-            label="Binance Chain Token"
+            label="Token"
             placeholder="Select Token"
             options={ tokenOptions }
             value={ token }
@@ -115,13 +115,6 @@ class AssetSelection extends Component {
             disabled={ disabled }
           />
         </Grid>
-        {/*<Grid item xs={ 3 } className={ classes.container }>
-          <Button
-            label="Issue"
-            disabled={ disabled }
-            onClick={ onIssue }
-          />
-        </Grid>*/}
       </Grid>
     )
   }
