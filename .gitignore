@@ -1,10 +1,10 @@
-sdk/node_modules/
+bnbridge/package-lock.json
+bnbridge/yarn.lock
+processing/package-lock.json
 sdk/package-lock.json
-
+sdk/node_modules/
 sdk/.elasticbeanstalk/*
-
 sdk/!.elasticbeanstalk/*.cfg.yml
-
 sdk/!.elasticbeanstalk/*.global.yml
 sdk/.privkey1.pem
 sdk/.cert1.pem
