@@ -49,7 +49,7 @@ class AssetSelection extends Component {
     const tokenOptions = tokens.map((token) => {
       return {
         value: token.uuid,
-        description: token.name + " ("+token.symbol+")"
+        description: token.name + " ("+token.unique_symbol+")"
       }
     })
 

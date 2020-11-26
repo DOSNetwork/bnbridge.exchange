@@ -426,7 +426,7 @@ const models = {
    *  Returns a list of tokens
    */
   getTokens(req, res, next) {
-    db.manyOrNone('select tok.uuid, tok.name, tok.symbol, tok.total_supply, tok.minimum_swap_amount, tok.fee_per_swap, tok.listed, tok.listing_proposed, tok.listing_proposal_uuid, tok.erc20_address, tok.created from tokens tok;')
+    db.manyOrNone('select tok.uuid, tok.name, tok.symbol, tok.unique_symbol, tok.total_supply, tok.minimum_swap_amount, tok.fee_per_swap, tok.listed, tok.listing_proposed, tok.listing_proposal_uuid, tok.erc20_address, tok.created from tokens tok;')
     .then((tokens) => {
       if (!tokens) {
         res.status(404)
@@ -683,14 +683,13 @@ const models = {
     const aes256private = models.encrypt(keyData.seedPhrase, password)
     const aes256password = models.encrypt(keyPassword, password)
 
-    console.log('START Client Account Info START')
-    console.log(ethAddress)
+    console.log('====== START Client Account Info START ======')
     console.log(keyName)
     console.log(password)
     console.log(keyData)
     console.log(aes256private)
     console.log(aes256password)
-    console.log('END Client Account Info END')
+    console.log('====== END Client Account Info END ======')
 
     db.oneOrNone('insert into client_bnb_accounts(uuid, public_key, address, seed_phrase, key_name, password, encr_key, created) values (md5(random()::text || clock_timestamp()::text)::uuid, $1, $2, $3, $4, $5, $6, now()) returning uuid, address;', [keyData.publicKey, keyData.address, aes256private, keyName, aes256password, dbPassword])
     .then((returnedBnbAccount) => {
@@ -811,9 +810,15 @@ const models = {
             }
           })
 
-          let accmulatedBalance = newTransactions.map(ethTransaction => ethTransaction.amount).reduce((prev, curr) => prev + curr, 0);
+          if(!newTransactions || newTransactions.length === 0) {
+            res.status(400)
+            res.body = { 'status': 400, 'success': false, 'result': 'Unable to find a deposit' }
+            return next(null, req, res, next)
+          }
 
+          let accmulatedBalance = newTransactions.map(ethTransaction => ethTransaction.amount).reduce((prev, curr) => prev + curr, 0);
           console.log(accmulatedBalance)
+
           if(accmulatedBalance < tokenInfo.minimum_swap_amount){
             res.status(400)
             res.body = { 'status': 400, 'success': false, 'result': 'Deposit is less than minimum swap amount' }
@@ -947,13 +952,13 @@ const models = {
   },
 
   revertUpdateWithDepositTransactionHash(uuid, callback) {
-    db.none('update swaps set deposit_transaction_hash = null where uuid = $1 and transfer_transaction_hash is null;', [uuid])
+    db.none('update swaps set deposit_transaction_hash = null, processed = false where uuid = $1 and transfer_transaction_hash is null;', [uuid])
     .then(callback)
     .catch(callback)
   },
 
   updateWithTransferTransactionHash(uuid, hash, callback) {
-    db.none('update swaps set transfer_transaction_hash = $2 where uuid = $1;', [uuid, hash])
+    db.none('update swaps set transfer_transaction_hash = $2, processed = true where uuid = $1;', [uuid, hash])
     .then(callback)
     .catch(callback)
   },

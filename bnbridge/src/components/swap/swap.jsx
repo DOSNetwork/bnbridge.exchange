@@ -353,6 +353,7 @@ class Swap extends Component {
 
     this.setState({ token: value, selectedToken: theToken[0] /*, amountHelperText: amountHelperText */ })
 
+
     if(swapDirection === 'E2B') {
       if(theToken.length > 0 && bnbReceiveAddress && bnbReceiveAddress !== "" && bnbReceiveAddress.length === Config.bnbAddressLength) {
         const content = {
@@ -450,14 +451,13 @@ class Swap extends Component {
     } = this.state
 
     const {
-      onIssue,
       classes
     } = this.props
 
     return (
       <React.Fragment>
         { this.renderSwapDirection() }
-        <AssetSelection onIssue={ onIssue } onTokenSelected={ this.onTokenSelected } disabled={ loading } />
+        <AssetSelection onTokenSelected={ this.onTokenSelected } disabled={ loading } />
         <Grid item xs={ 12 }>
         {
           swapDirection === "E2B" ?

@@ -68,10 +68,22 @@ const bnb = {
 
       if(data.includes("**Important**")) {
         // process.stdout.write(data);
-        const tmpData = data.replace(/\s\s+/g, ' ').replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '').split(' ');
-        const address = tmpData[6]
-        const publicKey = tmpData[7]
-        const seedPhrase = tmpData.slice(33, 57).join(' ')
+        const tmpData = data.split('\n');
+        let publicKey = ''
+        let address = ''
+        let seedPhrase = ''
+        for(var i = 0; i < tmpData.length; i++) {
+          if(tmpData[i].indexOf("NAME:") >= 0 && tmpData[i].indexOf("TYPE:") >= 0 && tmpData[i].indexOf("ADDRESS:") >= 0 && tmpData[i].indexOf("PUBKEY:") >= 0) {
+
+            let arr = tmpData[i+1].split('\t').filter(Boolean)
+            address = arr[2].replace('\r','')
+            publicKey = arr[3].replace('\r','')
+          }
+
+          if(tmpData[i].split(" ").length == 24) {
+            seedPhrase = tmpData[i].replace('\r','')
+          }
+        }
 
         ptyProcess.write('exit\r');
         callback(null, {
@@ -364,11 +376,12 @@ const bnb = {
   },
 
   createAccountWithKeystore(password) {
-    bncClient.createAccountWithKeystore(password)
+    const result = bncClient.createAccountWithKeystore(password)
+    return result
   },
 
   createAccountWithMneomnic() {
-    let result = bnbClient.createAccountWithMneomnic()
+    const result = bnbClient.createAccountWithMneomnic()
     return result
   },
 
