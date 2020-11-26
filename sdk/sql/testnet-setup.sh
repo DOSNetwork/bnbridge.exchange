@@ -92,7 +92,7 @@ sudo -u $DBUSER psql "postgresql://$DBUSER:$DBPASSWORD@localhost/$DBNAME" -c "
     true,
     100,
     5,
-    'eth-uuid-optional-testnet',
+    '8a838bd0-3005-11eb-80c5-c3497401f821',
     '5a89c14e-5385-4e4e-93c0-270c54ffd49e',
     true,
     true,

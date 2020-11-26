@@ -4,6 +4,12 @@ const config = require('../config');
 
 var web3 = new Web3(new Web3.providers.WebsocketProvider(config.provider));
 
+async function getFastGasPriceWei() {
+  let response = await fetch("https://www.etherchain.org/api/gasPriceOracle");
+  let data = await response.json();
+  return web3.utils.toWei(Number(data.fast).toString(), 'Gwei');
+}
+
 const eth = {
   createAccount(callback) {
     let account = web3.eth.accounts.create()
@@ -30,8 +36,7 @@ const eth = {
         return callback(null, returnEvents)
       })
       .catch((err) => {
-        console.log(err)
-        // callback(err)
+        callback(err)
       });
   },
 
@@ -63,7 +68,6 @@ const eth = {
 
     myContract.methods.balanceOf(address).call({ from: address })
       .then((balance) => {
-        console.log(balance);
         const theBalance = web3.utils.fromWei(balance.toString(), 'ether')
 
         callback(null, theBalance)
@@ -76,8 +80,6 @@ const eth = {
 
     myContract.methods.symbol().call({ from: contractAddress })
       .then((symbol) => {
-        console.log(symbol);
-
         callback(null, symbol)
       })
       .catch(callback)
@@ -88,8 +90,6 @@ const eth = {
 
     myContract.methods.name().call({ from: contractAddress })
       .then((name) => {
-        console.log(name);
-
         callback(null, name)
       })
       .catch(callback)
@@ -103,22 +103,17 @@ const eth = {
         if(!supply) {
           return callback(null, null)
         }
-
-        console.log(supply);
         const theSupply = web3.utils.fromWei(supply.toString(), 'ether')
-
         callback(null, theSupply)
       })
       .catch(callback)
   },
 
-  async getFastGasPriceWei() {
-    let response = await fetch("https://www.etherchain.org/api/gasPriceOracle");
-    let data = await response.json();
-    return web3.utils.toWei(parseFloat(data.fast), 'Gwei');
+  async getNonce(addr) {
+    return web3.eth.getTransactionCount(addr)
   },
 
-  async sendTransaction(contractAddress, privateKey, from, to, amount, callback) {
+  async sendTransaction(contractAddress, privateKey, nonce, to, amount, callback) {
     const sendAmount = web3.utils.toWei(amount, 'ether')
     const tokenInstance = new web3.eth.Contract(config.erc20ABI, contractAddress);
     const callData = tokenInstance.methods.transfer(to, sendAmount).encodeABI();
@@ -129,6 +124,7 @@ const eth = {
       value: '0',
       gasPrice: gasPriceFast,
       gas: 100000,
+      nonce: nonce,
       data: callData
     }
 

@@ -416,6 +416,21 @@ const models = {
     .catch(callback)
   },
 
+  getEthAccount(ethAddress, callback) {
+    db.oneOrNone('select * from eth_accounts where address = $1;', [ethAddress])
+    .then((account) => {
+      if(account.encr_key) {
+        const dbPassword = account.encr_key
+        const password = KEY+':'+dbPassword
+        account.private_key_decrypted = models.decrypt(account.private_key, password)
+      } else {
+        account.private_key_decrypted = account.private_key
+      }
+      callback(null, account)
+    })
+    .catch(callback)
+  },
+
   updateUniqueSymbol(uuid, uniqueSymbol, callback) {
     db.none('update tokens set unique_symbol=$1, processed=true where uuid=$2;', [uniqueSymbol, uuid])
     .then(callback)
@@ -730,8 +745,129 @@ const models = {
       if (direction === 'E2B') {
         models.finalizeSwapE2B(req, res, next, data)
       } else {
-        models.finalizeSwapB2E(req, res, next, data)  // TODO: fill
+        models.finalizeSwapB2E(req, res, next, data)
       }
+    })
+  },
+
+  finalizeSwapB2E(req, res, next, data) {
+    const {
+      uuid,
+      token_uuid,
+      direction
+    } = data
+
+    models.getClientAccountForUuidB2E(uuid, (err, clientAccount) => {
+      if(err) {
+        console.log(err)
+        res.status(500)
+        res.body = { 'status': 500, 'success': false, 'result': err }
+        return next(null, req, res, next)
+      }
+
+      if(!clientAccount) {
+        res.status(400)
+        res.body = { 'status': 400, 'success': false, 'result': 'Unable to find swap details' }
+        return next(null, req, res, next)
+      }
+
+      models.getTokenInfoForSwap(token_uuid, (err, tokenInfo) => {
+        if(err) {
+          console.log(err)
+          res.status(500)
+          res.body = { 'status': 500, 'success': false, 'result': err }
+          return next(null, req, res, next)
+        }
+
+        if(!tokenInfo) {
+          res.status(400)
+          res.body = { 'status': 400, 'success': false, 'result': 'Unable to find token details' }
+          return next(null, req, res, next)
+        }
+
+        async.parallel([
+          (callback) => { bnb.getTransactionsForAddress(clientAccount.bnb_address, tokenInfo.unique_symbol, callback) },
+          (callback) => { models.getTransactionHashs(token_uuid, uuid, callback) }
+        ], (err, info) => {
+          if(err) {
+            console.log(err)
+            res.status(500)
+            res.body = { 'status': 500, 'success': false, 'result': 'Unable to process request: '+err }
+            return next(null, req, res, next)
+          }
+
+          if(!info[0].data || !info[0].data.tx) {
+            res.status(400)
+            res.body = { 'status': 400, 'success': false, 'result': 'Unable to find a deposit' }
+            return next(null, req, res, next)
+          }
+
+          const bnbTransactions = info[0].data.tx
+          const swaps = info[1]
+
+          console.log(bnbTransactions)
+          console.log(swaps)
+
+          if(!bnbTransactions || bnbTransactions.length === 0) {
+            res.status(400)
+            res.body = { 'status': 400, 'success': false, 'result': 'Unable to find a deposit' }
+            return next(null, req, res, next)
+          }
+
+          const newTransactions = bnbTransactions.filter((bnbTransaction) => {
+            if(!bnbTransaction || bnbTransaction.value <= 0) {
+              return false
+            }
+
+            const thisTx = swaps.filter((swap) => {
+              return swap.deposit_transaction_hash === bnbTransaction.txHash
+            })
+
+            if (thisTx.length == 0 && parseFloat(bnbTransaction.value) >= parseFloat(tokenInfo.minimum_swap_amount)) {
+              return true
+            } else {
+              return false
+            }
+          })
+
+          if(!newTransactions || newTransactions.length === 0) {
+            res.status(400)
+            res.body = { 'status': 400, 'success': false, 'result': 'Unable to find any new deposits' }
+            return next(null, req, res, next)
+          }
+
+          let accmulatedBalance = newTransactions.map(bnbTransaction => parseFloat(bnbTransaction.value)).reduce((prev, curr) => prev + curr, 0);
+          console.log(accmulatedBalance)
+
+          if(accmulatedBalance < tokenInfo.minimum_swap_amount){
+            res.status(400)
+            res.body = { 'status': 400, 'success': false, 'result': 'Deposit is less than minimum swap amount' }
+            return next(null, req, res, next)
+          }
+
+          models.insertSwaps(newTransactions, clientAccount, token_uuid, direction, (err, newSwaps) => {
+            if(err) {
+              console.log(err)
+              res.status(500)
+              res.body = { 'status': 500, 'success': false, 'result': err }
+              return next(null, req, res, next)
+            }
+
+            models.proccessSwapsB2E(newSwaps, tokenInfo, (err, result) => {
+              if(err) {
+                console.log(err)
+                res.status(500)
+                res.body = { 'status': 500, 'success': false, 'result': err }
+                return next(null, req, res, next)
+              }
+
+              res.status(205)
+              res.body = { 'status': 200, 'success': true, 'result': newSwaps }
+              return next(null, req, res, next)
+            })
+          })
+        })
+      })
     })
   },
 
@@ -812,7 +948,7 @@ const models = {
 
           if(!newTransactions || newTransactions.length === 0) {
             res.status(400)
-            res.body = { 'status': 400, 'success': false, 'result': 'Unable to find a deposit' }
+            res.body = { 'status': 400, 'success': false, 'result': 'Unable to find any deposit' }
             return next(null, req, res, next)
           }
 
@@ -825,13 +961,7 @@ const models = {
             return next(null, req, res, next)
           }
 
-          if(newTransactions.length === 0) {
-            res.status(400)
-            res.body = { 'status': 400, 'success': false, 'result': 'Unable to find any new deposits' }
-            return next(null, req, res, next)
-          }
-
-          models.insertSwaps(newTransactions, clientAccount, token_uuid, 'E2B', (err, newSwaps) => {
+          models.insertSwaps(newTransactions, clientAccount, token_uuid, direction, (err, newSwaps) => {
             if(err) {
               console.log(err)
               res.status(500)
@@ -900,6 +1030,32 @@ const models = {
     })
   },
 
+  proccessSwapsB2E(swaps, tokenInfo, callback) {
+    models.getEthAccount(tokenInfo.eth_address, async (err, account) => {
+      if(err || !account) {
+        console.log(err)
+        res.status(500)
+        res.body = { 'status': 500, 'success': false, 'result': 'Unable to retrieve eth account' }
+        return next(null, req, res, next)
+      }
+
+      let nonce = await eth.getNonce(tokenInfo.eth_address)
+      let swap_cbs = [];
+      for (let i = 0; i < swaps.length; i++) {
+        swap_cbs.push(function (callback) {
+          models.processSwapB2E(swaps[i], tokenInfo, account, nonce + i, callback)
+        })
+      }
+      async.series(swap_cbs, (err, results) => {
+        if (err) {
+          return callback(err)
+        } else {
+          callback(null, results)
+        }
+      })
+    })
+  },
+
   processSwapE2B(swap, tokenInfo, key, seq, callback) {
     let amount_n = parseFloat(swap.amount);
     let minimum_amount_n = parseFloat(tokenInfo.minimum_swap_amount);
@@ -937,6 +1093,57 @@ const models = {
         let resultHash = swapResult.result[0].hash
 
         console.log(resultHash)
+        models.updateWithTransferTransactionHash(swap.uuid, resultHash, (err) => {
+          if(err) {
+            return callback(err)
+          }
+
+          callback(null, resultHash)
+        })
+      } else {
+        console.log(swapResult)
+        return callback('Swap result is not defined')
+      }
+    })
+  },
+
+  processSwapB2E(swap, tokenInfo, account, nonce, callback) {
+    let amount_n = parseFloat(swap.amount);
+    let minimum_amount_n = parseFloat(tokenInfo.minimum_swap_amount);
+    let fee_n = parseFloat(tokenInfo.fee_per_swap);
+    if (amount_n < minimum_amount_n) {
+      return callback("Transferred amount less than minimum fee, swap skipped");
+    }
+    eth.sendTransaction(tokenInfo.erc20_address, account.private_key_decrypted, nonce, swap.eth_address, (amount_n - fee_n).toFixed(2), (err, swapResult) => {
+      if(err) {
+        console.log(err)
+
+        return models.revertUpdateWithDepositTransactionHash(swap.uuid, (revertErr) => {
+          if(revertErr) {
+            console.log(revertErr)
+          }
+
+          let text = "Bridge swap encountered an error processing a swap."
+
+          text += '\n\n*********************************************************'
+          text += '\nDirection: Binance To Ethereum'
+          text += '\nToken: '+tokenInfo.name + ' ('+ tokenInfo.symbol +')'
+          text += '\nDeposit Hash: '+swap.deposit_transaction_hash
+          text += '\nFrom: '+swap.bnb_address
+          text += '\nTo: '+swap.eth_address
+          text += '\nAmount: '+swap.amount + ' ' + tokenInfo.symbol
+          text += '\n\nError Received: '+err
+          text += '\n*********************************************************'
+
+          emailer.sendMail('Bridge swap error', text)
+
+          return callback(err)
+        })
+      }
+
+      if(swapResult) {
+        let resultHash = swapResult
+
         models.updateWithTransferTransactionHash(swap.uuid, resultHash, (err) => {
           if(err) {
             return callback(err)
