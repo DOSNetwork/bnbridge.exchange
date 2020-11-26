@@ -1,8 +1,10 @@
 DROP TABLE IF EXISTS eth_accounts;
 CREATE TABLE eth_accounts (
   uuid char(36) primary key,
-  private_key varchar(128),
+  -- encrypted private key with `(KEY:dbPassword)`
+  private_key varchar(256),
   address varchar(64),
+  -- i.e. dbPassword, a newly generated bip39 mnemonic
   encr_key varchar(128),
   created timestamp
 );
@@ -12,11 +14,11 @@ DROP TABLE IF EXISTS bnb_accounts;
 CREATE TABLE bnb_accounts (
   uuid char(36) primary key,
   public_key varchar(128),
-  -- Inappropriate name, raw mnemonic of a bnb account encrypted by key `(KEY:dbPassword)`
+  -- raw mnemonic of a bnb account encrypted by key `(KEY:dbPassword)`
   seed_phrase varchar(512),
   address varchar(64),
   key_name varchar(64),
-  -- Inappropriate name, raw password used to operate with bnbcli encrypted by key `(KEY:dbPassword)`
+  -- raw password used to operate with bnbcli encrypted by key `(KEY:dbPassword)`
   password varchar(128),
   -- dbPassword, a bip39 mnemonic
   encr_key varchar(128),
@@ -81,7 +83,7 @@ CREATE TABLE client_accounts_eth (
 DROP TABLE IF EXISTS client_eth_accounts;
 CREATE TABLE client_eth_accounts (
   uuid char(36) primary key,
-  -- Inappropriate name, encrypted eth private key using `(KEY:dbPassword)` as encryption key
+  -- encrypted eth private key using `(KEY:dbPassword)` as encryption key
   private_key varchar(256),
   address varchar(64),
   -- dbPassword, a newly generated bip39 mnemonic for each created eth account

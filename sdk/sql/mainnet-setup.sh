@@ -43,25 +43,37 @@ sudo -u $DBUSER psql "postgresql://$DBUSER:$DBPASSWORD@localhost/$DBNAME" -f ${P
 
 # Gen encryption keys and encrypted password
 var=$(ISTESTNET=0 MNENOMIC=$MNEMONIC KEY=$KEY CLIPASSWORD=$CLIPASSWORD node keygen.js)
-pubKey=$(echo $var | cut -d, -f1)
-address=$(echo $var | cut -d, -f2)
+bnbPubKey=$(echo $var | cut -d, -f1)
+bnbAddress=$(echo $var | cut -d, -f2)
 encr_seed=$(echo $var | cut -d, -f3)
 encr_clipassword=$(echo $var | cut -d, -f4)
 encr_key=$(echo $var | cut -d, -f5)
+encr_eth_pk=$(echo $var | cut -d, -f6)
+ethAddr=$(echo $var | cut -d, -f7)
 # echo "encr_seed = $encr_seed"
 # echo "encr_clipassword = $encr_clipassword"
 # echo "encr_key = $encr_key"
-echo "pubKey = $pubKey"
-echo "address = $address"
+echo "bnbPubKey = $bnbPubKey"
+echo "bnbAddress = $bnbAddress"
+echo "ethAddress = $ethAddress"
 
+# Polulate eth_accounts, bnb_accounts, and tokens table
+sudo -u $DBUSER psql "postgresql://$DBUSER:$DBPASSWORD@localhost/$DBNAME" -c "
+  INSERT INTO eth_accounts VALUES (
+    '0e844974-3006-11eb-b1d9-fbf2567bac0e',
+    '$encr_eth_pk',
+    '$ethAddress',
+    '$encr_key',
+    now()
+  );
+"
 
-# Polulate bnb_accounts and tokens table
 sudo -u $DBUSER psql "postgresql://$DBUSER:$DBPASSWORD@localhost/$DBNAME" -c "
   INSERT INTO bnb_accounts VALUES (
     'ca32432b-e5a9-4bae-acb0-3f3492c69754',
-    '$pubKey',
+    '$bnbPubKey',
     '$encr_seed',
-    '$address',
+    '$bnbAddress',
     'bnbcli-keyname-optional',
     '$encr_clipassword',
     '$encr_key',
@@ -97,4 +109,3 @@ set -o history
 # You might also need to clear bash history to avoid leaking secrets.
 unset DBPASSWORD
 unset MNEMONIC
-

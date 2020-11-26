@@ -1,7 +1,7 @@
 {
   "name": "api.bnbridge.exchange",
   "version": "0.0.1",
-  "description": "Token swap utility for Fantom to Binance Chain",
+  "description": "Token swap utility between erc20 <-> bep2",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,10 +13,11 @@
     "assert": "^2.0.0",
     "async": "^2.6.2",
     "axios": "^0.18.1",
-    "bip39": "^3.0.2",
+    "bip39": "^3.0.3",
     "compression": "^1.7.4",
     "crypto": "^1.0.1",
     "crypto-browserify": "^3.12.0",
+    "ethereumjs-wallet": "^1.0.1",
     "exceljs": "^4.1.1",
     "execa": "^1.0.0",
     "express": "^4.16.4",
