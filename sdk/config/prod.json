@@ -16,6 +16,7 @@
    "prefix":"bnb",
    "network":"mainnet",
    "provider":"wss://mainnet.infura.io/ws/v3/<Replace with your Infura api key>",
+   "ethStartBlock": 10515866,
    "erc20ABI":[
       {
          "constant":true,

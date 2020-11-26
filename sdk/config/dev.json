@@ -14,6 +14,7 @@
    "prefix":"tbnb",
    "network":"testnet",
    "provider":"wss://rinkeby.infura.io/ws/v3/<Replace with your Infura api key>",
+   "ethStartBlock": 4297330,
    "erc20ABI":[
       {
          "constant":true,

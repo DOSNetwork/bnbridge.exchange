@@ -14,7 +14,7 @@ const eth = {
     let myContract = new web3.eth.Contract(config.erc20ABI, contractAddress)
 
     myContract.getPastEvents('Transfer', {
-      fromBlock: 10515866,
+      fromBlock: config.ethStartBlock,
       toBlock: 'latest',
       filter: { to: depositAddress }
     })
