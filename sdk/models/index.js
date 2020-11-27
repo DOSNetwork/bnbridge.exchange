@@ -9,9 +9,7 @@ const crypto = require('crypto');
 const sha256 = require('sha256');
 const bip39 = require('bip39');
 const algorithm = 'aes-256-ctr';
-const axios = require('axios');
 const BnbApiClient = require('@binance-chain/javascript-sdk');
-const httpClient = axios.create({ baseURL: config.api });
 const KEY = process.env.KEY;
 
 const models = {
@@ -998,8 +996,7 @@ const models = {
 
     const privateFrom = BnbApiClient.crypto.getPrivateKeyFromMnemonic(key.mnemonic);
     const addressFrom = BnbApiClient.crypto.getAddressFromPrivateKey(privateFrom, config.prefix);
-    const sequenceURL = `${config.api}api/v1/account/${addressFrom}/sequence`;
-    let seq = (await httpClient.get(sequenceURL)).data.sequence;
+    const seq = (await bnb.getSequenceNumber(addressFrom)).data.sequence;
 
     let swap_cbs = [];
     for (let i = 0; i < swaps.length; i++) {

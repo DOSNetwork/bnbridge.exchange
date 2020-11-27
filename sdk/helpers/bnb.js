@@ -5,7 +5,7 @@ const config = require('../config')
 const os = require('os');
 const pty = require('node-pty');
 const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-const httpClient = axios.create({ baseURL: config.api });
+const httpClient = axios.create({ baseURL: config.api, timeout: 60000 });
 const bnbClient = new BnbApiClient(config.api);
 bnbClient.chooseNetwork(config.network);
 
@@ -388,6 +388,11 @@ const bnb = {
   generateKeyStore(privateKey, password) {
     const result = BnbApiClient.crypto.generateKeyStore(privateKey, password);
     return result
+  },
+
+  async getSequenceNumber(addr) {
+    const sequenceURL = `${config.api}api/v1/account/${addr}/sequence`;
+    return httpClient.get(sequenceURL)
   },
 
   getTransactionsForAddress(address, symbol, callback) {
