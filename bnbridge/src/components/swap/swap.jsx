@@ -559,7 +559,7 @@ class Swap extends Component {
             </IconButton>
           </Typography>
           <Typography className={ classes.instructionUnderlined }>
-            After you've completed the transfer, click the "NEXT" button so we can verify your transaction.
+            After you've completed the transfer, click the "SWAP" button so we can verify your transaction.
           </Typography>
         </Grid>
       </React.Fragment>
@@ -705,7 +705,7 @@ class Swap extends Component {
         <Grid item xs={ 12 } align='right' className={ classes.button }>
           <Button
             fullWidth={true}
-            label={ page === 2 ? "Done" : "Next" }
+            label={ page === 2 ? "Done" : "Swap" }
             disabled={ loading }
             onClick={ this.onNext }
           />
