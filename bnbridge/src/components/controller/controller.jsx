@@ -18,6 +18,9 @@ const store = Store.store
 const styles = theme => ({
   root: {
     minHeight: '480px',
+    padding: '10px 15px',
+    'border-radius': '20px',
+    background: '#f7f7f7',
     [theme.breakpoints.down('md')]: {
       margin: '5%'
     }

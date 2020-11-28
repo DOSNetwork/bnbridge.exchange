@@ -12,7 +12,6 @@ import config from '../../config'
 import Input from '../common/input';
 import Button from '../common/button';
 import PageLoader from "../common/pageLoader";
-import Label from "../common/label";
 import AssetSelection from "../assetSelection";
 import Config from '../../config';
 
@@ -100,7 +99,7 @@ const styles = theme => ({
     verticalAlign: 'middle'
   },
   swapDirection: {
-    marginTop: '16px',
+    marginTop: '20px',
     marginBottom: '16px',
     cursor: 'pointer'
   }
@@ -110,7 +109,7 @@ function CopyIcon(props) {
   return (
     <SvgIcon {...props}>
       <path
-        fill={'#6a6a6a'}
+        fill={'#000'}
         d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm-1 4H8c-1.1 0-1.99.9-1.99 2L6 21c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V11l-6-6zM8 21V7h6v5h5v9H8z"
       />
     </SvgIcon>
@@ -121,8 +120,8 @@ function SwapIcon(props) {
   return (
     <SvgIcon {...props}>
       <path
-        fill={'#6a6a6a'}
-        d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z"
+        fill={'#000'}
+        d="M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z"
       />
     </SvgIcon>
   );
@@ -552,7 +551,6 @@ class Swap extends Component {
             <span id='depositAddress'>{swapDirection === 'E2B' ? ethDepositAddress : bnbDepositAddress}</span>
             <IconButton
               style={{
-                verticalAlign: "top",
                 marginRight: "-5px"
               }}
               onClick={this.onCopy}
@@ -655,7 +653,6 @@ class Swap extends Component {
 
     return (
       <React.Fragment>
-        <Label label={ 'Swap direction' } />
         <Grid item xs={ 5 }>
           <div className={ classes.icon }>
             <img
@@ -668,10 +665,10 @@ class Swap extends Component {
             <Typography  variant='h5'>{ first ==='Binance' ? 'BEP2' : 'ERC20' }</Typography>
           </div>
         </Grid>
-        <Grid item xs={ 2 }>
+        <Grid item xs={ 2 } align='center'>
           <SwapIcon className={ classes.swapDirection } onClick={ this.onSwapDirectionClick } />
         </Grid>
-        <Grid item xs={ 5 } align='left' >
+        <Grid item xs={ 5 } align='right'>
           <div className={ classes.icon }>
             <img
               alt=""

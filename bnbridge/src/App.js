@@ -22,7 +22,7 @@ function App() {
         justify="center"
         alignItems="center"
         direction="row">
-        <Grid item align='right'>
+        <Grid item align='left'>
           <Instructions />
         </Grid>
         <Grid item align="left">
