@@ -5,9 +5,10 @@ const config = require('../config');
 const options = {
   timeout: 60000,
   reconnect: {
-      auto: true,
-      delay: 5000,
-      onTimeout: false
+    auto: true,
+    delay: 5000,
+    maxAttempts: false,
+    onTimeout: false
   }
 };
 const web3 = new Web3(new Web3.providers.WebsocketProvider(config.provider, options));
