@@ -2,7 +2,15 @@ const Web3 = require('web3');
 const fetch = require('node-fetch');
 const config = require('../config');
 
-var web3 = new Web3(new Web3.providers.WebsocketProvider(config.provider, {timeout: 60000}));
+const options = {
+  timeout: 60000,
+  reconnect: {
+      auto: true,
+      delay: 5000,
+      onTimeout: false
+  }
+};
+const web3 = new Web3(new Web3.providers.WebsocketProvider(config.provider, options));
 
 async function getFastGasPriceWei() {
   let response = await fetch("https://www.etherchain.org/api/gasPriceOracle");
