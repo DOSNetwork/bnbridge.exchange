@@ -7,10 +7,12 @@ const async = require('async');
 const generator = require('generate-password');
 const crypto = require('crypto');
 const sha256 = require('sha256');
+const assert = require('assert');
 const bip39 = require('bip39');
 const algorithm = 'aes-256-ctr';
 const BnbApiClient = require('@binance-chain/javascript-sdk');
 const KEY = process.env.KEY;
+assert(KEY && KEY.length > 0, 'Export global key to continue');
 
 const models = {
 
