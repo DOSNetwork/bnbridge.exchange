@@ -52,10 +52,10 @@ const bnb = {
 
   createKey(name, password, callback) {
     const ptyProcess = bnb.spawnProcess()
+    let totalResp = ''
 
     ptyProcess.on('data', function(data) {
       process.stdout.write(data);
-
       if(data.includes("Enter a passphrase")) {
         // process.stdout.write('Setting password to '+password);
         ptyProcess.write(password+'\r');
@@ -66,15 +66,14 @@ const bnb = {
         ptyProcess.write(password+'\r');
       }
 
-      if(data.includes("**Important**")) {
-        // process.stdout.write(data);
-        const tmpData = data.split('\n');
+      totalResp = totalResp + data
+      if (data.split(' ').length == 24) {
+        const tmpData = totalResp.split('\n')
         let publicKey = ''
         let address = ''
         let seedPhrase = ''
         for(var i = 0; i < tmpData.length; i++) {
           if(tmpData[i].indexOf("NAME:") >= 0 && tmpData[i].indexOf("TYPE:") >= 0 && tmpData[i].indexOf("ADDRESS:") >= 0 && tmpData[i].indexOf("PUBKEY:") >= 0) {
-
             let arr = tmpData[i+1].split('\t').filter(Boolean)
             address = arr[2].replace('\r','')
             publicKey = arr[3].replace('\r','')
@@ -84,7 +83,6 @@ const bnb = {
             seedPhrase = tmpData[i].replace('\r','')
           }
         }
-
         ptyProcess.write('exit\r');
         callback(null, {
           address,
