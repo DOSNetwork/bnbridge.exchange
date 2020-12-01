@@ -595,7 +595,7 @@ const models = {
         res.body = { 'status': 200, 'success': true, 'result': clientAccount }
         return next(null, req, res, next)
       } else {
-        const keyName = eth_address+'_key'
+        const keyName = eth_address + '_' + Math.floor((new Date).getTime() / 1000).toString()
         const password = models.genPassword()
 
         bnb.createKey(keyName, password, (err, keyData) => {
