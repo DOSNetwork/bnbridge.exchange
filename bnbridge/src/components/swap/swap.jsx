@@ -331,9 +331,21 @@ class Swap extends Component {
     } = this.state
 
     if(swapDirection === 'E2B') {
-      window.open(config.etherscanURL+hash, "_blank")
+      window.open(config.etherscanURL + 'tx/' + hash, "_blank")
     } else {
-      window.open(config.explorerURL+hash, "_blank")
+      window.open(config.explorerURL+ 'tx/' + hash, "_blank")
+    }
+  };
+
+  onAddressClick = (addr) => {
+    const {
+      swapDirection
+    } = this.state
+
+    if(swapDirection === 'E2B') {
+      window.open(config.explorerURL + 'address/' + addr, "_blank")
+    } else {
+      window.open(config.etherscanURL +  'address/' + addr, "_blank")
     }
   };
 
@@ -475,10 +487,7 @@ class Swap extends Component {
                 bnbBalances &&
                 <React.Fragment>
                   <Typography>
-                    Current {selectedToken.name} Balance: { bnbBalances.balance } { selectedToken.symbol }
-                  </Typography>
-                  <Typography>
-                    Pending {selectedToken.name} Balance: { bnbBalances.pendingBalance } { selectedToken.symbol }
+                    <strong>Current Balance:</strong> { bnbBalances.balance } {selectedToken.unique_symbol}
                   </Typography>
                 </React.Fragment>
               }
@@ -505,7 +514,7 @@ class Swap extends Component {
                 ethBalances &&
                 <React.Fragment>
                  <Typography>
-                   Current {selectedToken.name} Balance: { ethBalances.balance } { selectedToken.symbol }
+                   <strong>Current Balance:</strong> { ethBalances.balance } {selectedToken.symbol}
                  </Typography>
                 </React.Fragment>
               }
@@ -606,7 +615,7 @@ class Swap extends Component {
 
     return (
       <React.Fragment>
-        <Typography className={ classes.instructions }>
+        <Typography className={ classes.hash } onClick={ () => { this.onAddressClick(swapDirection === 'E2B' ? bnbReceiveAddress : ethReceiveAddress)} }>
           You will receive another <b>{totalAmount} { swapDirection === 'E2B' ? selectedToken.unique_symbol : (selectedToken.symbol+'-ERC20') }</b> in your address <b>{ swapDirection === 'E2B' ? bnbReceiveAddress : ethReceiveAddress }</b>
         </Typography>
       </React.Fragment>
@@ -627,7 +636,7 @@ class Swap extends Component {
     return transactions.map((transaction) => {
       return (
         <React.Fragment key={transaction.deposit_transaction_hash} >
-          <Typography className={ classes.hash } onClick={ (event) => { this.onHashClick(transaction.deposit_transaction_hash); } }>
+          <Typography className={ classes.hash } onClick={ () => { this.onHashClick(transaction.deposit_transaction_hash); } }>
             <b>{(transaction.amount-5).toFixed(2)} (5 DOS as swap fee) { swapDirection === 'E2B' ? (selectedToken.symbol+'-ERC20') : selectedToken.unique_symbol }</b> from <b>{ swapDirection === 'E2B' ? transaction.eth_address : transaction.bnb_address }</b>
           </Typography>
         </React.Fragment>)
@@ -709,6 +718,15 @@ class Swap extends Component {
             disabled={ loading }
             onClick={ this.onNext }
           />
+          { page !== 0 &&
+            <Button
+              fullWidth={true}
+              label={ "Back" }
+              disabled={ loading }
+              onClick={ this.resetPage }
+            />
+          }
+
         </Grid>
       </Grid>
     )
