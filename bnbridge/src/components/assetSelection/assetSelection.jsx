@@ -49,11 +49,15 @@ class AssetSelection extends Component {
     const tokenOptions = tokens.map((token) => {
       return {
         value: token.uuid,
-        description: token.name + " ("+token.symbol+")"
+        description: token.name + " ("+token.unique_symbol+")"
       }
     })
 
-    let selectedToken = null
+    let selectedToken = '';
+    if (tokens.length > 0) {
+      selectedToken = tokens[0].uuid;
+      this.props.onTokenSelected(selectedToken);
+    }
 
     if(window.location.pathname !== "" && window.location.pathname !== "/") {
       const symbolToken = window.location.pathname.substr(1)
@@ -102,7 +106,7 @@ class AssetSelection extends Component {
           <Select
             id="token"
             fullWidth={ true }
-            label="Binance Chain Token"
+            label="Token"
             placeholder="Select Token"
             options={ tokenOptions }
             value={ token }
@@ -111,13 +115,6 @@ class AssetSelection extends Component {
             disabled={ disabled }
           />
         </Grid>
-        {/*<Grid item xs={ 3 } className={ classes.container }>
-          <Button
-            label="Issue"
-            disabled={ disabled }
-            onClick={ onIssue }
-          />
-        </Grid>*/}
       </Grid>
     )
   }

@@ -18,20 +18,29 @@ const store = Store.store
 const styles = theme => ({
   root: {
     width: '400px',
-    marginBottom: '24px'
+    marginBottom: '24px',
+    [theme.breakpoints.down('sm')]: {
+      width: '300px'
+    }
   },
   header: {
     fontSize: '2.4rem',
-    color: colors.yellow,
+    color: colors.grey,
     marginBottom: '24px',
     fontWeight: 400,
     fontFamily: ['Source Sans Pro', 'sans-serif'].join(","),
+    [theme.breakpoints.down('md')]: {
+      fontSize: '1.4rem'
+    }
   },
   action: {
     fontSize: '1rem',
     color: colors.lightBlack,
     display: 'inline-block',
-    marginTop: "0.5rem"
+    marginTop: "0.5rem",
+    [theme.breakpoints.down('md')]: {
+      fontSize: '0.9rem'
+    }
   },
   actionRed: {
     fontSize: '1rem',
@@ -51,7 +60,13 @@ const styles = theme => ({
 
 class Instructions extends Component {
   state = {
-    fees: []
+    fees: [],
+    dos_erc20: "https://etherscan.io/address/0x0A913beaD80F321E7Ac35285Ee10d9d922659cB7",
+    dos_bep2: "https://explorer.binance.org/asset/DOS-120",
+    dos_bep20: "https://bscscan.com/token/0xdc0f0a5719c39764b011edd02811bd228296887c",
+    instruction1: "https://medium.com/dos-network/instructions-on-how-to-swap-erc20-dos-to-bep2-dos-c032bdb7cc7f",
+    instruction2: "https://medium.com/spartanprotocol/swap-bep2-token-for-its-bep20-equivalent-a5054eec314d",
+    instruction3: "https://community.trustwallet.com/t/how-to-swap-twt-bep2-to-twt-bep20/72718",
   };
 
   componentWillMount() {
@@ -111,19 +126,19 @@ class Instructions extends Component {
         justify="flex-start"
         alignItems="flex-end">
         <Grid item xs={12} align='left'>
-          <div style={{"margin-right":"50px"}} className={ classes.root } >
-            <Typography className={ classes.header }>With bnbridge you can:</Typography>
-            <li><Typography className={ classes.action }>Swap ERC20 to BEP2 compatible tokens</Typography></li>
-            <li><Typography className={ classes.action }>Launch BEP2 assets</Typography></li>
-            <li><Typography className={ classes.action }>List tokens on Binance DEX</Typography></li>
+          <div className={ classes.root } >
+            <Typography className={ classes.header }>Token Bridge</Typography>
+            <li><Typography className={ classes.action }> Swap between <a href={this.state.dos_erc20} target="_blank" rel="noopener noreferrer">ERC20</a> and <a href={this.state.dos_bep2} target="_blank" rel="noopener noreferrer">BEP2</a> DOS token</Typography></li>
+            <li><Typography className={ classes.action }> Swap between <a href={this.state.dos_bep2} target="_blank" rel="noopener noreferrer">BEP2</a> and <a href={this.state.dos_bep20} target="_blank" rel="noopener noreferrer">BEP20</a> DOS token</Typography></li>
           </div>
           <div className={ classes.root } >
-            <Typography className={ classes.header }>Bnbridge fees:</Typography>
-              <Grid
-                container
-                justify="flex-start"
-                alignItems="flex-end">
-                { this.renderFees() }
+            <Typography className={ classes.header }>More Info</Typography>
+              <Grid item xs={12} align='left'>
+                <li><Typography className={ classes.action }>Instruction of ERC20 ↔  BEP2: <a href={this.state.instruction1} target="_blank" rel="noopener noreferrer">Click</a></Typography></li>
+                <li><Typography className={ classes.action }>Instruction of BEP2 ↔  BEP20: <a href={this.state.instruction2} target="_blank" rel="noopener noreferrer">Click 1</a>, <a href={this.state.instruction3} target="_blank" rel="noopener noreferrer">Click 2</a></Typography></li>
+                <li><Typography className={ classes.action }>Minimum swap amount: 100 DOS</Typography></li>
+                <li><Typography className={ classes.action }>Swap fee: 5 DOS</Typography></li>
+                {/* { this.renderFees() } */}
             </Grid>
           </div>
         </Grid>

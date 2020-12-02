@@ -15,13 +15,14 @@ function App() {
   return (
     <MuiThemeProvider theme={ createMuiTheme(bnbridgeTheme) }>
       <CssBaseline />
+      
       <Grid
-        style={{ padding: '7.5rem 0'}}
+        style={{ 'paddingTop': '8.5%'}}
         container
         justify="center"
         alignItems="center"
         direction="row">
-        <Grid item align='right'>
+        <Grid item align='left'>
           <Instructions />
         </Grid>
         <Grid item align="left">

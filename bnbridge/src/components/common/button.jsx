@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import {
   Button
 } from '@material-ui/core';
+import { colors } from '../../theme';
 
 const styles = theme => ({
   root: {
@@ -12,7 +13,7 @@ const styles = theme => ({
     minHeight: '43px',
     marginBottom: '12px',
     fontWeight: 700,
-    border: "1px solid #f5bc00",
+    border: "1px solid #141414",
     transition: "all 0.2s ease-in-out",
     padding: "0.8rem 2.5rem",
     lineHeight: "1.5",
@@ -20,7 +21,7 @@ const styles = theme => ({
     fontSize: "0.8rem",
     "&:hover": {
         //you want this to be the same as the backgroundColor above
-        backgroundColor: "#f5bc00",
+        backgroundColor: colors.darkBlack,
         color: "#FFF"
     }
   }

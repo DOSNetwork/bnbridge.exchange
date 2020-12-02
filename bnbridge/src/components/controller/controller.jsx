@@ -6,25 +6,24 @@ import {
   Tab
 } from '@material-ui/core';
 
-import {
-  GET_FEES,
-  FEES_UPDATED
-} from '../../constants'
-
-import Issue from "../issue";
-import List from "../list";
+// import Issue from "../issue";
+// import List from "../list";
+// import CreateAccount from '../createAccount';
 import Swap from "../swap";
 import ErrorSnackbar from '../errorSnackbar';
-import CreateAccount from '../createAccount';
 
 import Store from "../../stores";
-const dispatcher = Store.dispatcher
-const emitter = Store.emitter
 const store = Store.store
 
 const styles = theme => ({
   root: {
-    minHeight: '450px'
+    minHeight: '480px',
+    padding: '10px 15px',
+    'border-radius': '20px',
+    background: '#f7f7f7',
+    [theme.breakpoints.down('md')]: {
+      margin: '5%'
+    }
   },
   tabs: {
     marginTop: '24px',
@@ -43,12 +42,9 @@ class Controller extends Component {
   };
 
   componentWillMount() {
-    emitter.on(FEES_UPDATED, this.feesUpdated);
-    dispatcher.dispatch({type: GET_FEES, content: {} })
   };
 
   componentWillUnmount() {
-    emitter.removeListener(FEES_UPDATED, this.feesUpdated);
   };
 
   feesUpdated = () => {
@@ -97,8 +93,8 @@ class Controller extends Component {
     return (
       <div className={ classes.root }>
         { (!issueOpen && !createOpen) && this.renderTabs() }
-        { issueOpen && this.renderIssue() }
-        { createOpen && this.renderCreateAccount() }
+        {/* issueOpen && this.renderIssue() }
+        { createOpen && this.renderCreateAccount() */ }
         { errorOpen && this.renderError() }
       </div>
     )
@@ -118,6 +114,7 @@ class Controller extends Component {
     this.setState({ errorOpen: true, error: error })
   };
 
+/*
   renderIssue = () => {
     const {
       issueFee
@@ -133,24 +130,25 @@ class Controller extends Component {
       <CreateAccount onBack={ this.onCreateAccountBack }  showError={ this.showError } />
     )
   };
+*/
 
   renderTabs = () => {
     const { classes } = this.props;
     const {
       tabValue,
-      issueFee
+//      issueFee
     } = this.state;
 
     return (
       <React.Fragment>
         <Tabs value={tabValue} onChange={this.handleChange} className={ classes.tabs } variant="fullWidth" indicatorColor="primary" textColor="inherit">
-          <Tab label="Swap" />
-          <Tab label="List" />
-          <Tab label="Issue" />
+          { <Tab label="Choose Direction" /> }
+          {/* <Tab label="List" />
+          <Tab label="Issue" /> */}
         </Tabs>
         {tabValue === 0 && <Swap onIssue={ this.onIssue } showError={ this.showError } onCreateAccount={ this.onCreateAccount } />}
-        {tabValue === 1 && <List onIssue={ this.onIssue } showError={ this.showError } />}
-        {tabValue === 2 && <Issue onBack={ this.onIssueBack }  issueFee={ issueFee } showError={ this.showError } />}
+        {/* tabValue === 1 && <List onIssue={ this.onIssue } showError={ this.showError } />}
+        {tabValue === 2 && <Issue onBack={ this.onIssueBack }  issueFee={ issueFee } showError={ this.showError } /> */}
       </React.Fragment>
     )
   };

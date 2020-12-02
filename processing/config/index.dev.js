@@ -16,7 +16,7 @@ const config = {
   prefix: 'tbnb',
 
   //Ethereum
-  provider: 'https://ropsten.infura.io/v3/2b1dbb61817f4ae6ac90d9b41662993b',
+  provider: 'https://ropsten.infura.io/v3/1b8fe172d663460bb5eb6f79552efebd',
 
 
   erc20ABI: [

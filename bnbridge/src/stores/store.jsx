@@ -395,7 +395,6 @@ class Store {
     if (method === 'GET') {
       postData = null;
     } else {
-      console.log(postData)
       postData = encrypt(postData, url);
     }
 

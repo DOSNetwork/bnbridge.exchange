@@ -14,7 +14,6 @@ var basic = auth.basic({ realm: 'bnbridge.exchange' }, function (username, passw
 
 var app = express()
 
-
 app.all('/*', function(req, res, next) {
   // CORS headers
   res.set('Content-Type', 'application/json')
@@ -30,7 +29,7 @@ app.all('/*', function(req, res, next) {
 })
 
 app.use(morgan('dev'))
-
+app.use(auth.connect(basic));
 app.use(helmet())
 app.use(compression())
 
@@ -121,8 +120,13 @@ app.use(function(err, req, res) {
 var options = {}
 https.globalAgent.maxSockets = 50
 app.set('port', 8000)
-var server = null
-server = require('http').Server(app)
+// var server = null
+// server = require('http').Server(app)
+var options = {
+  key:  fs.readFileSync(__dirname + '/.privkey1.pem'),
+  cert: fs.readFileSync(__dirname + '/.cert1.pem'),
+}
+var server = https.createServer(options, app)
 server.listen(app.get('port'), function () {
   console.log('api.bnbridge.exchange',server.address().port)
   module.exports = server

@@ -46,7 +46,6 @@ function StyledSelect(props) {
           />
         }
       >
-        <option value={null}>select</option>
         {
           options ? options.map((option) => {
             return <option key={option.value} value={option.value}>{option.description}</option>

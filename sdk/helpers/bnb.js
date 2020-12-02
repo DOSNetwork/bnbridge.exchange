@@ -5,7 +5,9 @@ const config = require('../config')
 const os = require('os');
 const pty = require('node-pty');
 const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-const httpClient = axios.create({ baseURL: config.api });
+const httpClient = axios.create({ baseURL: config.api, timeout: 60000 });
+const bnbClient = new BnbApiClient(config.api);
+bnbClient.chooseNetwork(config.network);
 
 const bnb = {
   spawnProcess() {
@@ -31,7 +33,7 @@ const bnb = {
   },
 
   validateAddress(address) {
-    const addressValid = BnbApiClient.crypto.checkAddress(address);
+    const addressValid = bnbClient.checkAddress(address);
     return addressValid
   },
 
@@ -50,10 +52,10 @@ const bnb = {
 
   createKey(name, password, callback) {
     const ptyProcess = bnb.spawnProcess()
+    let totalResp = ''
 
     ptyProcess.on('data', function(data) {
       process.stdout.write(data);
-
       if(data.includes("Enter a passphrase")) {
         // process.stdout.write('Setting password to '+password);
         ptyProcess.write(password+'\r');
@@ -64,13 +66,23 @@ const bnb = {
         ptyProcess.write(password+'\r');
       }
 
-      if(data.includes("**Important**")) {
-        // process.stdout.write(data);
-        const tmpData = data.replace(/\s\s+/g, ' ').replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '').split(' ');
-        const address = tmpData[6]
-        const publicKey = tmpData[7]
-        const seedPhrase = tmpData.slice(33, 57).join(' ')
+      totalResp = totalResp + data
+      if (data.split(' ').length == 24) {
+        const tmpData = totalResp.split('\n')
+        let publicKey = ''
+        let address = ''
+        let seedPhrase = ''
+        for(var i = 0; i < tmpData.length; i++) {
+          if(tmpData[i].indexOf("NAME:") >= 0 && tmpData[i].indexOf("TYPE:") >= 0 && tmpData[i].indexOf("ADDRESS:") >= 0 && tmpData[i].indexOf("PUBKEY:") >= 0) {
+            let arr = tmpData[i+1].split('\t').filter(Boolean)
+            address = arr[2].replace('\r','')
+            publicKey = arr[3].replace('\r','')
+          }
 
+          if(tmpData[i].split(" ").length == 24) {
+            seedPhrase = tmpData[i].replace('\r','')
+          }
+        }
         ptyProcess.write('exit\r');
         callback(null, {
           address,
@@ -147,34 +159,28 @@ const bnb = {
     ptyProcess.write('./'+config.fileName+' token burn --amount '+amount+' --symbol '+symbol+' --from '+keyName+' --chain-id='+config.chainID+' --node='+config.nodeData+' --trust-node\r');
   },
 
-  transfer(mnemonic, publicTo, amount, asset, message, callback) {
-
+  transfer(mnemonic, publicTo, amount, asset, message, sequence, callback) {
     mnemonic = mnemonic.replace(/(\r\n|\n|\r)/gm, "");
-
     const privateFrom = BnbApiClient.crypto.getPrivateKeyFromMnemonic(mnemonic);
-    const publicFrom = BnbApiClient.crypto.getAddressFromPrivateKey(privateFrom, config.prefix);
-
-    const sequenceURL = `${config.api}api/v1/account/${publicFrom}/sequence`;
-
-    const bnbClient = new BnbApiClient(config.api);
-    bnbClient.setPrivateKey(privateFrom);
-    bnbClient.initChain();
-
-    httpClient.get(sequenceURL)
-    .then((res) => {
-      const sequence = res.data.sequence || 0
-      return bnbClient.transfer(publicFrom, publicTo, amount, asset, message, sequence)
+    const addressFrom = BnbApiClient.crypto.getAddressFromPrivateKey(privateFrom, config.prefix);
+    bnbClient.setPrivateKey(privateFrom).then(_ => {
+      bnbClient.initChain().then(_ => {
+        // const sequence = res.data.sequence || 0
+        console.log((new Date()).getTime())
+        console.log("seq: " + sequence)
+        return bnbClient.transfer(addressFrom, publicTo, amount, asset, message, sequence)
+      })
+        .then((result) => {
+          if (result.status === 200) {
+            callback(null, result)
+          } else {
+            callback(result)
+          }
+        })
+        .catch((error) => {
+          callback(error)
+        });
     })
-    .then((result) => {
-      if (result.status === 200) {
-        callback(null, result)
-      } else {
-        callback(result)
-      }
-    })
-    .catch((error) => {
-      callback(error)
-    });
   },
 
   freeze(amount, symbol, keyName, callback) {
@@ -204,7 +210,6 @@ const bnb = {
   },
 
   getBalance(address, callback) {
-    const bnbClient = new BnbApiClient(config.api);
     bnbClient.getBalance(address).then((balances) => { callback(null, balances ) });
   },
 
@@ -368,24 +373,38 @@ const bnb = {
 
   },
 
-  createAccountWithKeystore() {
-    bncClient.createAccountWithKeystore(password)
+  createAccountWithKeystore(password) {
+    const result = bncClient.createAccountWithKeystore(password)
+    return result
   },
 
-  createAccountWithMneomnic(password) {
-    const bnbClient = new BnbApiClient(config.api);
-    bnbClient.chooseNetwork(config.network)
-
-    let result = bnbClient.createAccountWithMneomnic()
-
+  createAccountWithMneomnic() {
+    const result = bnbClient.createAccountWithMneomnic()
     return result
   },
 
   generateKeyStore(privateKey, password) {
     const result = BnbApiClient.crypto.generateKeyStore(privateKey, password);
-
     return result
-  }
+  },
+
+  async getSequenceNumber(addr) {
+    const sequenceURL = `${config.api}api/v1/account/${addr}/sequence`;
+    return httpClient.get(sequenceURL)
+  },
+
+  getTransactionsForAddress(address, symbol, callback) {
+    const url = `${config.api}api/v1/transactions?address=${address}&txType=TRANSFER&txAsset=${symbol}&side=RECEIVE`;
+
+    httpClient
+      .get(url)
+      .then((res) => {
+        callback(null, res)
+      })
+      .catch((error) => {
+        callback(error)
+      });
+  },
 
 }
 
