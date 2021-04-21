@@ -136,8 +136,8 @@ class Instructions extends Component {
               <Grid item xs={12} align='left'>
                 <li><Typography className={ classes.action }>Instruction of ERC20 ↔  BEP2: <a href={this.state.instruction1} target="_blank" rel="noopener noreferrer">Click</a></Typography></li>
                 <li><Typography className={ classes.action }>Instruction of BEP2 ↔  BEP20: <a href={this.state.instruction2} target="_blank" rel="noopener noreferrer">Click 1</a>, <a href={this.state.instruction3} target="_blank" rel="noopener noreferrer">Click 2</a></Typography></li>
-                <li><Typography className={ classes.action }>Minimum swap amount: 100 DOS</Typography></li>
-                <li><Typography className={ classes.action }>Swap fee: 5 DOS</Typography></li>
+                <li><Typography className={ classes.action }>Minimum swap amount: 300 DOS</Typography></li>
+                <li><Typography className={ classes.action }>Swap fee: 100 DOS</Typography></li>
                 {/* { this.renderFees() } */}
             </Grid>
           </div>
